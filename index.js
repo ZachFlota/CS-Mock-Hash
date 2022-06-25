@@ -20,14 +20,16 @@ checkPassword = async (username, plaintextPassword) => {
     // Ensure global store contains the user 
     // (this is a quick way to check if an object contains a key)
     if (globalStore[username]) {
-        // TODO: Use bcrypt's compare methof to compare a plaintext password to a password hash
-
-        // TODO: The result variable is a boolean. True means the user was valid. Take action accordingly.
+        // TODO: DONE Use bcrypt's compare methof to compare a plaintext password to a password hash
+        let hashedPassword = await bcrypt.compare(plaintextPassword, globalStore[username[1]])
+        // TODO: DONE The result variable is a boolean. True means the user was valid. Take action accordingly.
         if (result) {
             // TODO: Display message for valid credentials
+            console.log(`Welcome back ${username}`)
         }
         else {
             // TODO: Display message for invalid credentials
+            console.log(`I don't recognize you! Get out!`)
         }
     }
     else {
@@ -36,15 +38,16 @@ checkPassword = async (username, plaintextPassword) => {
     }
 }
 
-hashPassword = async (username, password) => {
+hashPassword = async (username, nickname, password) => {
     // TODO: Make sure to delete this console.log once you're done implementing the function!
-    console.log('\nUh-oh, hashPassword is not yet implemented. 😢')
+    //console.log('\nUh-oh, hashPassword is not yet implemented. 😢')
 
-    // TODO: Make the password hash using bcrypt
-
-    // TODO: Add the user and password hash to the global store object
-
+    // TODO: DONE Make the password hash using bcrypt
+    let hashedPassword = await bcrypt.hash(password, 12)
+    // TODO: DONE Add the user and password hash to the global store object
+    globalStore[username] = [ nickname, hashedPassword ]
     // TODO: Print a status update including the username and password hash
+    console.log(`User '${username}' was added. Their nickname is ${nickname}. Their password hash is ${hashedPassword}` )
 }
 
 
@@ -64,11 +67,13 @@ createUser = async () => {
         console.log(`❌ Sorry, but there is already a user called ${username}\n`)
     }
     else {
+        let nickname = readlineSync.question(`What is the nicknamne for ${username}?`)
+
         // If the user is new, prompt them for a password
         let password = readlineSync.question(`What is the password for ${username}? `)
 
         // Add the user to our system
-        await hashPassword(username, password)
+        await hashPassword(username, nickname, password)
     }
 }
 
@@ -95,7 +100,7 @@ viewStore = () => {
 
     // Print each user
     for (let key in globalStore) {
-        console.log(`${key}: ${globalStore[key]}`)
+        console.log(`${key}: ${globalStore[key][0]}: ${globalStore[key][1]}`)
     }
 
     // Some lines to break it up visually
